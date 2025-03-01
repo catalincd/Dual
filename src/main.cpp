@@ -85,6 +85,7 @@ uint8_t SLAVE_MAC_ADDRESS[] = {0x1C, 0xA1, 0x35, 0x69, 0x8D, 0xC5};
 
 BluetoothSerial SerialBT;
 bool BT_CONNECTED = false;
+const int BT_TIMEOUT = 1250;
 const int BT_TRIES = 5;
 const int INIT_TRIES = 5;
 const int INIT_DELAY_FACTOR = 500;
@@ -96,8 +97,12 @@ std::string SendCommand(std::string command)
 		
 	SerialBT.println(String(command.c_str()));
 	std::vector<char> incoming;
+	int startTime = millis();
 	while(1)
 	{
+		if(millis() - BT_TIMEOUT > startTime)
+			break;
+			
 		if(SerialBT.available())
 		{
 			char incomingByte = SerialBT.read();
