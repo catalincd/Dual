@@ -5,6 +5,7 @@
 #include "SPIFFS.h"
 #include "FS.h"
 #include "widgets.h"
+#include "tests.h"
 
 
 #include <vector>
@@ -85,6 +86,8 @@ uint8_t SLAVE_MAC_ADDRESS[] = {0x1C, 0xA1, 0x35, 0x69, 0x8D, 0xC5};
 BluetoothSerial SerialBT;
 bool BT_CONNECTED = false;
 const int BT_TRIES = 5;
+const int INIT_TRIES = 5;
+const int INIT_DELAY_FACTOR = 500;
 const int BT_DELAY = 2000;
 
 std::string SendCommand(std::string command)
@@ -111,13 +114,35 @@ std::string SendCommand(std::string command)
 
 
 
-void SendInitCommand(std::string command)
+std::string SendInitCommand(std::string command)
 {
 	PrintScreen1(command);
-	std::string ATZ = SendCommand("ATZ"); 
-	PrintScreen2(ATZ);
-	Serial.println(String(ATZ.c_str())); 
+	std::string response = SendCommand(command); 
+	PrintScreen2(response);
+	Serial.println(String(response.c_str())); 
 	delay(1000);
+}
+
+bool ExecuteInit(const int currentDelay)
+{
+	std::vector<std::pair<std::string, std::string>> commands = {
+		{"ATZ", "ELM"}, 
+		{"ATE0", "OK"}, 
+		{"ATL1", "OK"}, 
+		{"ATS0", "OK"}, 
+		{"0100", "4100"}, 
+		{"ATDP", "ISO"}};
+
+	for(int i=0;i<commands.size();i++)
+	{
+		std::string response = SendInitCommand(commands[i].first);
+		if(response.find(commands[i].second) == std::string::npos)
+			return false;
+			
+		delay(currentDelay);
+	}
+	
+	return true;
 }
 
 void BluetoothConnect()
@@ -148,14 +173,9 @@ void BluetoothConnect()
 	}
 	BT_CONNECTED = true;
 	
+	availableTries = INIT_TRIES;
 	
-	SendInitCommand("ATZ");
-	SendInitCommand("ATE0");
-	SendInitCommand("ATL1");
-	SendInitCommand("ATS0");
-	SendInitCommand("ATS0");
-	SendInitCommand("0100");
-	SendInitCommand("ATDP");
+	while(!ExecuteInit(INIT_TRIES - availableTries + 1) && (availableTries--)){}
 }
 
 
@@ -610,6 +630,9 @@ void print_partition_table() {
 
 void setup() {
 	Serial.begin(9600);
+	
+	RunWidgetTests();
+	
 	InitFileManager();
 	Serial.printf("File Manager Init Done\n");
 	ButtonsInit();
