@@ -9,14 +9,14 @@
 	}
 	
 #define ASSERT_EQUAL(val1, val2, message) \
-    if ((val1) != (val2)) { \
-        Serial.print("Assertion failed: "); \
-        Serial.println(message); \
-        Serial.print("Expected: "); \
-        Serial.print(val2); \
-        Serial.print(", Got: "); \
-        Serial.println(val1); \
-    }
+	if ((val1) != (val2)) { \
+		Serial.print("Assertion failed: "); \
+		Serial.println(message); \
+		Serial.print("Expected: "); \
+		Serial.print(val2); \
+		Serial.print(", Got: "); \
+		Serial.println(val1); \
+	}
 	
 
 void RunWidgetTests()

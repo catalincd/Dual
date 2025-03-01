@@ -6,8 +6,8 @@
 #include "FS.h"
 #include "widgets.h"
 #include "tests.h"
-
-
+#include <iomanip>
+#include <sstream>
 #include <vector>
 #include <map>
 /*
@@ -121,6 +121,7 @@ std::string SendInitCommand(std::string command)
 	PrintScreen2(response);
 	Serial.println(String(response.c_str())); 
 	delay(1000);
+	return response;
 }
 
 bool ExecuteInit(const int currentDelay)
@@ -130,8 +131,10 @@ bool ExecuteInit(const int currentDelay)
 		{"ATE0", "OK"}, 
 		{"ATL1", "OK"}, 
 		{"ATS0", "OK"}, 
-		{"0100", "4100"}, 
-		{"ATDP", "ISO"}};
+		{"ATSP0", "OK"}, 
+		{"0100", ""},
+		{"ATDP", ""}
+	};
 
 	for(int i=0;i<commands.size();i++)
 	{
@@ -171,11 +174,10 @@ void BluetoothConnect()
 		}
 		delay(BT_DELAY);
 	}
+		
+	ExecuteInit(1000);
+	
 	BT_CONNECTED = true;
-	
-	availableTries = INIT_TRIES;
-	
-	while(!ExecuteInit(INIT_TRIES - availableTries + 1) && (availableTries--)){}
 }
 
 
@@ -357,6 +359,8 @@ lv_obj_t* screen_1;
 lv_obj_t* img_1;
 lv_obj_t* obj_1;
 lv_obj_t* unit_1;
+lv_obj_t* value_1;
+int last_value_update_1 = 0;
 lv_meter_scale_t* scale_1;
 lv_meter_indicator_t* arc_1;
 lv_meter_indicator_t* needle_1;
@@ -434,7 +438,7 @@ void InitScreen1()
 	lv_style_set_bg_opa(&glow_style, LV_OPA_100);
 	lv_style_set_line_color(&glow_style, BIMMER_ORANGE);
 	lv_style_set_text_color(&glow_style, BIMMER_ORANGE);
-	lv_style_set_text_font(&glow_style, &lv_font_montserrat_24);
+	lv_style_set_text_font(&glow_style, &lv_font_montserrat_18);
 	lv_style_set_shadow_color(&glow_style, BIMMER_ORANGE);
 	lv_style_set_shadow_ofs_x(&glow_style, 0);
 	lv_style_set_shadow_ofs_y(&glow_style, 0);
@@ -453,15 +457,11 @@ void InitScreen1()
 	
 	lv_obj_set_style_bg_color(obj_1, BLACK, 0);
 	
-	img_1 = lv_img_create(screen_1);	
-	lv_img_set_src(img_1, LoadImage(("/" + left_widget->image + ".bmp").c_str()));
-	lv_obj_align(img_1, LV_ALIGN_CENTER, 0, 80);
-
 	// Create a scale
 	scale_1 = lv_meter_add_scale(obj_1);
 	lv_meter_set_scale_range(obj_1, scale_1, left_widget->lower, left_widget->upper, 240, 150);
 	lv_meter_set_scale_ticks(obj_1, scale_1, 9, 3, 15, BIMMER_ORANGE);
-	lv_meter_set_scale_major_ticks(obj_1, scale_1, 2, 6, 20, BIMMER_ORANGE, 25);
+	lv_meter_set_scale_major_ticks(obj_1, scale_1, 2, 6, 20, BIMMER_ORANGE, 22);
 
 	// Add an arc indicator
 	arc_1 = lv_meter_add_arc(obj_1, scale_1, 20, BIMMER_ORANGE, 0);
@@ -472,8 +472,25 @@ void InitScreen1()
 	unit_1 = lv_label_create(screen_1);  // Create label on the active screen
 	lv_label_set_text(unit_1, left_widget->unit.c_str());          // Set text
 	lv_obj_set_style_text_color(unit_1, BIMMER_ORANGE, LV_PART_MAIN);  // Set text color to black
-	lv_obj_set_style_text_font(unit_1, &lv_font_montserrat_48, LV_PART_MAIN);
-	lv_obj_align(unit_1, LV_ALIGN_CENTER, 0, 0);
+	lv_obj_set_style_text_font(unit_1, &lv_font_montserrat_24, LV_PART_MAIN);
+	lv_obj_align(unit_1, LV_ALIGN_BOTTOM_RIGHT, -50, -25);
+	
+	value_1 = lv_label_create(screen_1);
+	lv_label_set_text(value_1, "0.0");          
+	lv_obj_set_style_text_color(value_1, BIMMER_ORANGE, LV_PART_MAIN);  
+	lv_obj_set_style_text_font(value_1, &lv_font_montserrat_32, LV_PART_MAIN);
+	lv_obj_align(value_1, LV_ALIGN_CENTER, 0, 0);
+	
+	img_1 = lv_img_create(screen_1);	
+	lv_img_set_src(img_1, LoadImage(("/" + left_widget->image + ".bmp").c_str()));
+	lv_obj_align(img_1, LV_ALIGN_CENTER, 0, 80);
+}
+
+std::string Precision(const float value, const int precision = 1)
+{
+	std::ostringstream oss;
+	oss << std::fixed << std::setprecision(1) << value;
+	return oss.str();
 }
 
 void UpdateScreen1()
@@ -502,7 +519,14 @@ void UpdateScreen1()
 		float bias = (modulo / float(inteval) * 2.0f - 1.0f);
 		value = interpolate(left_widget->lower, left_widget->upper, cos(bias * PIb));
 	}
-
+	
+	if(millis() - last_value_update_1 > 1000)
+	{
+		char text[4];
+		itoa(value, text, 10);
+		lv_label_set_text(value_1, text);   
+		last_value_update_1 = millis(); 
+	}
 	lv_meter_set_indicator_end_value(obj_1, arc_1, ceil(value));
 }
 
