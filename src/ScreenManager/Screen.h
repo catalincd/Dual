@@ -8,17 +8,15 @@
 
 struct ScreenStartData
 {
-    int lower = 0;
-    int upper = 100;
-    std::string unit = "U";
-    std::string image = "coolant";
+    int lower;
+    int upper;
+    std::string unit;
+    std::string image;
 };
 
 struct ScreenUpdateData
 {
     int value;
-    int lower;
-    int upper;
 };
 
 

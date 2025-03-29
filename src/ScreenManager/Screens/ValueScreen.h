@@ -3,6 +3,9 @@
 #include "../../Utils/Utils.h"
 #include "../../FileManager/FileManager.h"
 
+#define VALUE_UPDATE_RATE_MS 1000
+
+
 extern FileManager* g_FileManager;
 
 class ValueScreen : public Screen
@@ -11,7 +14,7 @@ class ValueScreen : public Screen
     lv_obj_t* obj;
     lv_obj_t* unit;
     lv_obj_t* value;
-    int last_value_update = 0;
+    unsigned long last_value_update = 0;
     lv_meter_scale_t* scale;
     lv_meter_indicator_t* arc;
     lv_meter_indicator_t* needle;
@@ -83,10 +86,12 @@ public:
 
     void Draw(ScreenUpdateData data) override
     {
-        unsigned long inteval = 6000;
-		float modulo = millis() % inteval;
-		float bias = (modulo / float(inteval) * 2.0f - 1.0f);
-		int value = interpolate(data.lower, data.upper, cos(bias * PIb));
-	    lv_meter_set_indicator_end_value(obj, arc, ceil(value));
+        if(millis() - last_value_update > VALUE_UPDATE_RATE_MS)
+        {
+            last_value_update = millis();
+            lv_label_set_text(value, std::to_string(data.value).c_str()); // TO DO: Update precision
+        }
+        
+        lv_meter_set_indicator_end_value(obj, arc, data.value);
     }
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include "../Controller.h"
+#include "../widgets.h"
 #include "../ButtonManager/ButtonManager.h"
 
 #include <TFT_eSPI.h>
@@ -21,6 +22,8 @@ class ScreenManager : public Controller
     Screen* Lower;
     Screen* Upper;
     
+    int LowerWidget = 0; // TO DO: Load from mem
+    int UpperWidget = 1; // TO DO: Load from mem
 public:
     ScreenManager() : Controller("ScreenManager") 
     {

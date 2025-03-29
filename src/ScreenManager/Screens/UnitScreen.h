@@ -74,10 +74,6 @@ public:
 
     void Draw(ScreenUpdateData data) override
     {
-        unsigned long inteval = 6000;
-		float modulo = millis() % inteval;
-		float bias = (modulo / float(inteval) * 2.0f - 1.0f);
-		int value = interpolate(data.lower, data.upper, cos(bias * PIb));
-	    lv_meter_set_indicator_end_value(obj, arc, ceil(value));
+	    lv_meter_set_indicator_end_value(obj, arc, data.value);
     }
 };
