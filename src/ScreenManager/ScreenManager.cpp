@@ -1,5 +1,7 @@
 #include "ScreenManager.h"
+#define DELAY 5
 
+extern ButtonManager g_ButtonManager;
 extern TFT_eSPI tft;
 
 void ScreenManager::InitTFT()
@@ -42,6 +44,19 @@ bool ScreenManager::Start()
 
 bool ScreenManager::Update()
 {
+    if(g_ButtonManager.Released(0))   Serial.println("25 Released");
+
+
+    if(g_ButtonManager.Released(1))
+    {
+        Rotation++;
+        Rotation %= 4;
+        Serial.printf("rot: %d\n", Rotation);
+        
+        Lower->Rotate(Rotation);
+    }
+
+
     int data = (millis() / 20) % 100;
 
     Lower->Draw({data, 0, 100});
@@ -50,8 +65,8 @@ bool ScreenManager::Update()
 
     lv_task_handler();
 	lv_timer_handler();
-	delay(1);
-	lv_tick_inc(1);
+	delay(DELAY);
+	lv_tick_inc(DELAY);
 
     return true;
 }

@@ -4,6 +4,8 @@
 
 #include "ScreenManager/ScreenManager.h"
 #include "FileManager/FileManager.h"
+#include "ButtonManager/ButtonManager.h"
+#include "BluetoothManager/BluetoothManager.h"
 
 #include "Controller.h"
 #include "widgets.h"
@@ -15,10 +17,14 @@ TFT_eSPI tft = TFT_eSPI();
 
 ScreenManager* g_ScreenManager = new ScreenManager(); 
 FileManager* g_FileManager = new FileManager(); 
+ButtonManager* g_ButtonManager = new ButtonManager(); 
+BluetoothManager* g_BluetoothManager = new BluetoothManager(); 
 
 std::vector<Controller*> controllers = {
     g_FileManager,
-    g_ScreenManager
+    g_ButtonManager,
+    g_ScreenManager,
+    g_BluetoothManager
 };
 
 
@@ -55,7 +61,6 @@ void loop() {
         }
     }
 	/*
-    ButtonsUpdate();
 	UpdateWidgets();
     */
 }

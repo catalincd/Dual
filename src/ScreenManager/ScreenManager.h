@@ -1,5 +1,6 @@
 #pragma once
 #include "../Controller.h"
+#include "../ButtonManager/ButtonManager.h"
 
 #include <TFT_eSPI.h>
 
@@ -13,15 +14,17 @@
 /*
 Maybe Upper and Lower should be a List in the future
 */
+static int Rotation;
 
 class ScreenManager : public Controller
 {
     Screen* Lower;
     Screen* Upper;
+    
 public:
     ScreenManager() : Controller("ScreenManager") 
     {
-        
+        Rotation = 0;
     }
 
     void InitTFT();

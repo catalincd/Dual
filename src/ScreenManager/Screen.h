@@ -35,9 +35,12 @@ public:
     Screen(int _pin);
     
     void Init(int _pin);
+    void Rotate(int rotation);
 
     virtual void Start(ScreenStartData data) {}
     virtual void Draw(ScreenUpdateData data) {}
+
+    
 };
 
 

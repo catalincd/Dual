@@ -21,3 +21,8 @@ void Screen::Init(int _pin)
 	screen = lv_disp_get_scr_act(p_disp);
 }
 
+void Screen::Rotate(int rotation)
+{
+	lv_disp_set_rotation(p_disp, LV_DISP_ROT_90);
+}
+
