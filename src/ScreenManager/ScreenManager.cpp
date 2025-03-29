@@ -1,7 +1,9 @@
 #include "ScreenManager.h"
+#include "../BluetoothManager/BluetoothManager.h"
 #define DELAY 5
 
-extern ButtonManager g_ButtonManager;
+extern BluetoothManager* g_BluetoothManager;
+extern ButtonManager g_ButtonManager; // somehow it works without a pointer
 extern TFT_eSPI tft;
 
 void ScreenManager::InitTFT()
@@ -19,7 +21,7 @@ void ScreenManager::InitTFT()
 	tft.init();
 	tft.setTextSize(2);
 	tft.setRotation(2);
-	tft.fillScreen(TFT_RED);
+	tft.fillScreen(TFT_SKYBLUE);
 	
 	digitalWrite(PIN_SCREEN_1, HIGH);
 	digitalWrite(PIN_SCREEN_2, HIGH);
@@ -29,7 +31,7 @@ bool ScreenManager::Start()
 {    
     InitTFT();
     delay(300);
-    lv_init();
+    lv_init(); // TO DO : Move this to another function and print text
     
     Lower = new ValueScreen(16);
     Lower->Start({
@@ -92,14 +94,26 @@ bool ScreenManager::Update()
         }
     }
 
+    int upperValue;
+    int lowerValue;
 
+    if(g_BluetoothManager->IsConnected())
+    {
+        upperValue = AllWidgets[UpperWidget].process(g_BluetoothManager->SendCommand(AllWidgets[UpperWidget].code));
+        lowerValue = AllWidgets[LowerWidget].process(g_BluetoothManager->SendCommand(AllWidgets[LowerWidget].code));
+    }
+    else
+    {
+        int data = (millis() / 20) % 100;
+        int switced = data = ((millis() / 2000) % 2)? data : 100 - data;
 
-    int data = (millis() / 20) % 100;
-    int switced = data = ((millis() / 2000) % 2)? data : 100 - data;
+        upperValue = switced;
+        lowerValue = switced;
+    }
+    
 
-    Lower->Draw({switced});
-
-    Upper->Draw({switced});
+    Lower->Draw({upperValue});
+    Upper->Draw({lowerValue});
 
     lv_task_handler();
 	lv_timer_handler();
@@ -107,4 +121,9 @@ bool ScreenManager::Update()
 	lv_tick_inc(DELAY);
 
     return true;
+}
+
+void ScreenManager::PrintTFT(std::string message)
+{
+
 }

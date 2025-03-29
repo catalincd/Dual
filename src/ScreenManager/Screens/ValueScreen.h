@@ -3,7 +3,7 @@
 #include "../../Utils/Utils.h"
 #include "../../FileManager/FileManager.h"
 
-#define VALUE_UPDATE_RATE_MS 1000
+#define VALUE_UPDATE_RATE_MS 500
 
 
 extern FileManager* g_FileManager;

@@ -2,6 +2,7 @@
 #include <BluetoothSerial.h>
 
 BluetoothSerial SerialBT;
+extern ScreenManager* g_ScreenManager;
 
 bool BluetoothManager::Start()
 {
@@ -22,9 +23,21 @@ bool BluetoothManager::Start()
     else
     {
         Serial.println("BT connection success");
-        connected = true;
-        
+        connected = InitOBD();
     }
+}
+
+bool BluetoothManager::InitOBD() // TO DO : check for responses and retry, maybe only that request
+{
+    g_ScreenManager->PrintTFT(SendCommand("ATZ"));          delay(BLUETOOTH_INIT_DELAY);
+    g_ScreenManager->PrintTFT(SendCommand("ATE0"));         delay(BLUETOOTH_INIT_DELAY);
+    g_ScreenManager->PrintTFT(SendCommand("ATL1"));         delay(BLUETOOTH_INIT_DELAY);
+    g_ScreenManager->PrintTFT(SendCommand("ATS0"));         delay(BLUETOOTH_INIT_DELAY);
+    g_ScreenManager->PrintTFT(SendCommand("ATSP0"));        delay(BLUETOOTH_INIT_DELAY);
+    g_ScreenManager->PrintTFT(SendCommand("0100"));         delay(BLUETOOTH_INIT_DELAY);
+    //g_ScreenManager->PrintTFT(SendCommand("ATDP"));         delay(BLUETOOTH_INIT_DELAY);
+
+    return true;
 }
 
 bool BluetoothManager::IsConnected() const
@@ -46,6 +59,8 @@ bool BluetoothManager::Connect()
 
 std::string BluetoothManager::SendCommand(std::string command)
 {
+    Serial.printf("SENDING COMMAND: %s\n", command.c_str());
+
     SerialBT.println(command.c_str());
     delay(BLUETOOTH_RESPONSE_DELAY);
     std::string response = "";
@@ -53,6 +68,7 @@ std::string BluetoothManager::SendCommand(std::string command)
     {
         response = std::string(SerialBT.readStringUntil('>').c_str());
     }
+    Serial.printf("RECEIVED: %s\n", response.c_str());
     return response;
 }
 

@@ -12,6 +12,7 @@
 #define PIN_SCREEN_1 16
 #define PIN_SCREEN_2 17
 
+
 /*
 Maybe Upper and Lower should be a List in the future
 */
@@ -31,6 +32,7 @@ public:
     }
 
     void InitTFT();
+    void PrintTFT(std::string message);
     bool Start() override;
     bool Update() override;
 };
