@@ -21,7 +21,7 @@
 
 void RunWidgetTests()
 {
-	ASSERT_EQUAL(CoolantTemp.process("41057B\r\n\r\n>"), 83, "FAILED COOLANT TEST");
-	ASSERT_EQUAL(BatteryVoltage.process("414239D6\r\n\r\n>"), 148.06f, "FAILED BATTERY TEST");
+	ASSERT_EQUAL((int)CoolantTemp.process("410588\r\n\r\n>"), 96, "FAILED COOLANT TEST");
+	ASSERT_EQUAL(BatteryVoltage.process("13.1V\r\n\r\n>"), 131.00f, "FAILED BATTERY TEST");
 	ASSERT_EQUAL((int)EngineLoad.process("410480\r\n\r\n>"), 50, "FAILED LOAD TEST");
 }

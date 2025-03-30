@@ -94,26 +94,31 @@ bool ScreenManager::Update()
         }
     }
 
-    int upperValue;
-    int lowerValue;
+    float upperValue;
+    float lowerValue;
 
     if(g_BluetoothManager->IsConnected())
     {
-        upperValue = AllWidgets[UpperWidget].process(g_BluetoothManager->SendCommand(AllWidgets[UpperWidget].code));
-        lowerValue = AllWidgets[LowerWidget].process(g_BluetoothManager->SendCommand(AllWidgets[LowerWidget].code));
+        std::string upperResponse = g_BluetoothManager->SendCommand(AllWidgets[UpperWidget].code);
+        upperValue = (AllWidgets[UpperWidget].process(upperResponse));
+
+        std::string lowerResponse = g_BluetoothManager->SendCommand(AllWidgets[LowerWidget].code);
+        lowerValue = AllWidgets[LowerWidget].process(lowerResponse);
     }
     else
     {
         int data = (millis() / 20) % 100;
-        int switced = data = ((millis() / 2000) % 2)? data : 100 - data;
+        int switched = data = ((millis() / 2000) % 2)? data : 100 - data;
 
-        upperValue = switced;
-        lowerValue = switced;
+        upperValue = switched;
+        lowerValue = switched;
     }
+
+    Serial.printf("LOWER: %f \nUPPER: %f\n", upperValue, lowerValue);
     
 
-    Lower->Draw({upperValue});
-    Upper->Draw({lowerValue});
+    Lower->Draw({(int)lowerValue});
+    Upper->Draw({(int)upperValue});
 
     lv_task_handler();
 	lv_timer_handler();

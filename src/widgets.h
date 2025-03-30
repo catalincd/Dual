@@ -17,16 +17,16 @@ typedef struct Widget
 };
 
 
-static Widget CoolantTemp{0, "coolant", "0105", "°C", 0, 120, [](const std::string& response) {
-	return strtol(response.substr(response.find("05") + 2, 2).c_str(), NULL, 16) - 40.0f;
+static Widget CoolantTemp{0, "coolant", "0105", "°C", 0, 120, [](const std::string response) {
+	return strtol(response.substr(4, 2).c_str(), NULL, 16) - 40;
 }};
 
-static Widget BatteryVoltage{1, "battery", "0142", "dV", 80, 160, [](const std::string& response) {
-	return strtol(response.substr(response.find("42") + 2, 4).c_str(), NULL, 16) / 100.0f;
+static Widget BatteryVoltage{1, "battery", "ATRV", "dV", 80, 160, [](const std::string response) {
+	return std::stof(response) * 10.0f;
 }};
 
-static Widget EngineLoad{2, "load", "0104", "%", 0, 100, [](const std::string& response) {
-	return strtol(response.substr(response.find("04") + 2, 2).c_str(), NULL, 16) / 2.55f;
+static Widget EngineLoad{2, "load", "0104", "%", 0, 100, [](const std::string response) {
+	return (float)strtol(response.substr(4, 2).c_str(), NULL, 16) / 2.55f;
 }};
 
 static Widget AllWidgets[] = {
